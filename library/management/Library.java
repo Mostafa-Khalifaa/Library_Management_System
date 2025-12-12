@@ -5,38 +5,43 @@ import library.exceptions.ItemNotFoundException;
 import library.items.LibraryItem;
 
 public class Library<T extends LibraryItem> {
-
     private ArrayList<T> items;
-
- public Library(){
-    items = new ArrayList<>();
- }
-
-
- public void addItem(T item){
-    items.add(item);
-    System.out.println("item added successfully");
- }
-
- // Get an item by ID
- public T getItemById(String id) throws ItemNotFoundException{
-  for (T item : items){
-    if(item.getId().equals(id)){
-        return item;
+    
+    public Library() {
+        items = new ArrayList<>();
     }
-  }
-  throw  new ItemNotFoundException("item not found for this id");
- }
-
-
-public void updateItem(String id , String newTitle) throws ItemNotFoundException {
-    T item = getItemById(id);
-    item.setTitle(newTitle);
-    System.out.println("item updated");
-
-}
-public void deleteItem(String id) throws ItemNotFoundException {
+    
+    public boolean idExists(String id) {
+        return items.stream()
+                   .anyMatch(item -> item.getId().equals(id));
+    }
+    
+    public void addItem(T item) {
+        if (idExists(item.getId())) {
+            System.out.println("Error: Item with ID " + item.getId() + " already exists!");
+            return;
+        }
+        items.add(item);
+        item.create();
+        System.out.println("Item added successfully!");
+    }
+    
+    public T getItemById(String id) throws ItemNotFoundException {
+        return items.stream()
+                   .filter(item -> item.getId().equals(id))
+                   .findFirst()
+                   .orElseThrow(() -> new ItemNotFoundException("Item with ID " + id + " not found!"));
+    }
+    
+    public void updateItem(String id, String newTitle) throws ItemNotFoundException {
         T item = getItemById(id);
+        item.setTitle(newTitle);
+        System.out.println("Item updated successfully!");
+    }
+    
+    public void deleteItem(String id) throws ItemNotFoundException {
+        T item = getItemById(id);
+        item.delete();
         items.remove(item);
         System.out.println("Item deleted successfully!");
     }
@@ -45,14 +50,35 @@ public void deleteItem(String id) throws ItemNotFoundException {
         if (items.isEmpty()) {
             System.out.println("No items in the library.");
         } else {
-            System.out.println("\n  Library Items ");
-            for (T item : items) {
-                System.out.println(item.getItemDetails());
-            }
+            System.out.println("\n--- Library Items ---");
+            items.forEach(item -> System.out.println(item.getItemDetails()));
         }
     }
     
-    // Method using wildcards to add items from another collection
+    public void displayAvailableItems() {
+        System.out.println("\n--- Available Items ---");
+        long count = items.stream()
+                         .filter(LibraryItem::isAvailable)
+                         .peek(item -> System.out.println(item.getItemDetails()))
+                         .count();
+        
+        if (count == 0) {
+            System.out.println("No items available.");
+        }
+    }
+    
+    public void searchByTitle(String keyword) {
+        System.out.println("\n--- Search Results for: " + keyword + " ---");
+        long count = items.stream()
+                         .filter(item -> item.getTitle().toLowerCase().contains(keyword.toLowerCase()))
+                         .peek(item -> System.out.println(item.getItemDetails()))
+                         .count();
+        
+        if (count == 0) {
+            System.out.println("No items found.");
+        }
+    }
+    
     public void addAll(ArrayList<? extends LibraryItem> newItems) {
         for (LibraryItem item : newItems) {
             items.add((T) item);
@@ -60,7 +86,3 @@ public void deleteItem(String id) throws ItemNotFoundException {
         System.out.println(newItems.size() + " items added successfully!");
     }
 }
-
-
-
-

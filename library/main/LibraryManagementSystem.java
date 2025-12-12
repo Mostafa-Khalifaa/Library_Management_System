@@ -8,15 +8,12 @@ import library.management.*;
 // Main class with menu system
 public class LibraryManagementSystem {
     
-    // Scanner for user input
     private static Scanner scanner = new Scanner(System.in);
-    
-    // Library and client manager instances
     private static Library<LibraryItem> library = new Library<>();
     private static ClientManager clientManager = new ClientManager();
     
     public static void main(String[] args) {
-        System.out.println("Welcome to Library Management System");
+        System.out.println("LIBRARY MANAGEMENT SYSTEM");
         
         boolean running = true;
         
@@ -25,7 +22,7 @@ public class LibraryManagementSystem {
             
             try {
                 int choice = scanner.nextInt();
-                scanner.nextLine(); // Clear buffer
+                scanner.nextLine();
                 
                 switch (choice) {
                     case 1:
@@ -35,36 +32,41 @@ public class LibraryManagementSystem {
                         manageClients();
                         break;
                     case 3:
-                        System.out.println("Thank you for using the system!");
+                        borrowReturnMenu();
+                        break;
+                    case 4:
+                        searchMenu();
+                        break;
+                    case 5:
                         running = false;
                         break;
                     default:
-                        System.out.println("Invalid choice. Try again.");
+                        System.out.println("\nInvalid choice. Please select 1-5.");
                 }
             } catch (Exception e) {
-                System.out.println("Error: Please enter a valid number.");
-                scanner.nextLine(); // Clear buffer
+                System.out.println("\nError: Please enter a valid number.");
+                scanner.nextLine();
             }
         }
         
         scanner.close();
     }
     
-    // Display main menu
     private static void displayMainMenu() {
-        System.out.println("\n=== Main Menu ===");
+        System.out.println("\n--- MAIN MENU ---");
         System.out.println("1. Manage Library Items");
         System.out.println("2. Manage Clients");
-        System.out.println("3. Exit");
+        System.out.println("3. Borrow/Return Items");
+        System.out.println("4. Search");
+        System.out.println("5. Exit");
         System.out.print("Enter your choice: ");
     }
     
-    // Manage library items submenu
     private static void manageItems() {
         boolean back = false;
         
         while (!back) {
-            System.out.println("\n--- Item Management ---");
+            System.out.println("\n--- ITEM MANAGEMENT MENU ---");
             System.out.println("1. Add Book");
             System.out.println("2. Add Magazine");
             System.out.println("3. View Item Details");
@@ -73,12 +75,13 @@ public class LibraryManagementSystem {
             System.out.println("6. Delete Book");
             System.out.println("7. Delete Magazine");
             System.out.println("8. Display All Items");
-            System.out.println("9. Back to Main Menu");
+            System.out.println("9. Display Available Items");
+            System.out.println("10. Back to Main Menu");
             System.out.print("Enter your choice: ");
             
             try {
                 int choice = scanner.nextInt();
-                scanner.nextLine(); // Clear buffer
+                scanner.nextLine();
                 
                 switch (choice) {
                     case 1:
@@ -106,36 +109,34 @@ public class LibraryManagementSystem {
                         library.displayAllItems();
                         break;
                     case 9:
+                        library.displayAvailableItems();
+                        break;
+                    case 10:
                         back = true;
                         break;
                     default:
-                        System.out.println("Invalid choice. Try again.");
+                        System.out.println("\nInvalid choice. Please try again.");
                 }
-            } catch (ItemNotFoundException e) {
-                // Handle ItemNotFoundException without waiting for input
-                System.out.println("Error: " + e.getMessage());
             } catch (Exception e) {
-                // Handle other exceptions (like invalid input)
-                System.out.println("Error: Please enter a valid number.");
-                scanner.nextLine(); // Clear buffer only for input mismatch
+                System.out.println("\nError: " + e.getMessage());
+                System.out.println("Returning to menu...");
+                scanner.nextLine();
             }
         }
     }
     
-    // Validate input is not empty
     private static String getValidInput(String prompt) {
         String input = "";
         while (input.trim().isEmpty()) {
             System.out.print(prompt);
             input = scanner.nextLine();
             if (input.trim().isEmpty()) {
-                System.out.println("Error: Input cannot be empty. Please try again.");
+                System.out.println("Input cannot be empty. Please try again.");
             }
         }
         return input.trim();
     }
     
-    // Get valid integer input
     private static int getValidIntInput(String prompt) {
         int value = -1;
         boolean valid = false;
@@ -143,62 +144,61 @@ public class LibraryManagementSystem {
             try {
                 System.out.print(prompt);
                 value = scanner.nextInt();
-                scanner.nextLine(); // Clear buffer
+                scanner.nextLine();
                 if (value <= 0) {
-                    System.out.println("Error: Please enter a positive number.");
+                    System.out.println("Please enter a positive number.");
                 } else {
                     valid = true;
                 }
             } catch (Exception e) {
-                System.out.println("Error: Please enter a valid number.");
-                scanner.nextLine(); // Clear buffer
+                System.out.println("Please enter a valid number.");
+                scanner.nextLine();
             }
         }
         return value;
     }
     
-    // Add a book
     private static void addBook() {
-        System.out.println("\n--- Add New Book ---");
+        System.out.println("\n--- ADD NEW BOOK ---");
         String id = getValidInput("Enter Book ID: ");
         String title = getValidInput("Enter Title: ");
         String author = getValidInput("Enter Author: ");
         int pages = getValidIntInput("Enter Number of Pages: ");
+        int stock = getValidIntInput("Enter Stock (copies available): ");
         
-        Book book = new Book(id, title, author, pages);
+        Book book = new Book(id, title, author, pages, stock);
         library.addItem(book);
     }
     
-    // Add a magazine
     private static void addMagazine() {
-        System.out.println("\n--- Add New Magazine ---");
+        System.out.println("\n--- ADD NEW MAGAZINE ---");
         String id = getValidInput("Enter Magazine ID: ");
         String title = getValidInput("Enter Title: ");
         String publisher = getValidInput("Enter Publisher: ");
         int issue = getValidIntInput("Enter Issue Number: ");
+        int stock = getValidIntInput("Enter Stock (copies available): ");
         
-        Magazine magazine = new Magazine(id, title, publisher, issue);
+        Magazine magazine = new Magazine(id, title, publisher, issue, stock);
         library.addItem(magazine);
     }
     
-    // View item details by ID
     private static void viewItemDetails() throws ItemNotFoundException {
-        System.out.println("\n--- View Item Details ---");
+        System.out.println("\n--- VIEW ITEM DETAILS ---");
         String id = getValidInput("Enter Item ID: ");
         
         LibraryItem item = library.getItemById(id);
         System.out.println("\n" + item.getItemDetails());
     }
     
-    // Update a book
     private static void updateBook() throws ItemNotFoundException {
-        System.out.println("\n--- Update Book ---");
+        System.out.println("\n--- UPDATE BOOK ---");
         String id = getValidInput("Enter Book ID to update: ");
         
         LibraryItem item = library.getItemById(id);
         
         if (!(item instanceof Book)) {
-            throw new ItemNotFoundException("This ID belongs to a Magazine, not a Book!");
+            System.out.println("Error: This ID belongs to a Magazine, not a Book!");
+            return;
         }
         
         Book book = (Book) item;
@@ -207,22 +207,19 @@ public class LibraryManagementSystem {
         String newAuthor = getValidInput("Enter New Author: ");
         int newPages = getValidIntInput("Enter New Number of Pages: ");
         
-        book.setTitle(newTitle);
-        book.setAuthor(newAuthor);
-        book.setPages(newPages);
-        
+        book.update(newTitle, newAuthor, String.valueOf(newPages));
         System.out.println("Book updated successfully!");
     }
     
-    // Update a magazine
     private static void updateMagazine() throws ItemNotFoundException {
-        System.out.println("\n--- Update Magazine ---");
+        System.out.println("\n--- UPDATE MAGAZINE ---");
         String id = getValidInput("Enter Magazine ID to update: ");
         
         LibraryItem item = library.getItemById(id);
         
         if (!(item instanceof Magazine)) {
-            throw new ItemNotFoundException("This ID belongs to a Book, not a Magazine!");
+            System.out.println("Error: This ID belongs to a Book, not a Magazine!");
+            return;
         }
         
         Magazine magazine = (Magazine) item;
@@ -231,47 +228,43 @@ public class LibraryManagementSystem {
         String newPublisher = getValidInput("Enter New Publisher: ");
         int newIssue = getValidIntInput("Enter New Issue Number: ");
         
-        magazine.setTitle(newTitle);
-        magazine.setPublisher(newPublisher);
-        magazine.setIssueNumber(newIssue);
-        
+        magazine.update(newTitle, newPublisher, String.valueOf(newIssue));
         System.out.println("Magazine updated successfully!");
     }
     
-    // Delete a book
     private static void deleteBook() throws ItemNotFoundException {
-        System.out.println("\n--- Delete Book ---");
+        System.out.println("\n--- DELETE BOOK ---");
         String id = getValidInput("Enter Book ID to delete: ");
         
         LibraryItem item = library.getItemById(id);
         
         if (!(item instanceof Book)) {
-            throw new ItemNotFoundException("This ID belongs to a Magazine, not a Book!");
+            System.out.println("Error: This ID belongs to a Magazine, not a Book!");
+            return;
         }
         
         library.deleteItem(id);
     }
     
-    // Delete a magazine
     private static void deleteMagazine() throws ItemNotFoundException {
-        System.out.println("\n--- Delete Magazine ---");
+        System.out.println("\n--- DELETE MAGAZINE ---");
         String id = getValidInput("Enter Magazine ID to delete: ");
         
         LibraryItem item = library.getItemById(id);
         
         if (!(item instanceof Magazine)) {
-            throw new ItemNotFoundException("This ID belongs to a Book, not a Magazine!");
+            System.out.println("Error: This ID belongs to a Book, not a Magazine!");
+            return;
         }
         
         library.deleteItem(id);
     }
     
-    // Manage clients submenu
     private static void manageClients() {
         boolean back = false;
         
         while (!back) {
-            System.out.println("\n--- Client Management ---");
+            System.out.println("\n--- CLIENT MANAGEMENT MENU ---");
             System.out.println("1. Add Client");
             System.out.println("2. View Client Details");
             System.out.println("3. Update Client");
@@ -282,7 +275,7 @@ public class LibraryManagementSystem {
             
             try {
                 int choice = scanner.nextInt();
-                scanner.nextLine(); // Clear buffer
+                scanner.nextLine();
                 
                 switch (choice) {
                     case 1:
@@ -304,22 +297,18 @@ public class LibraryManagementSystem {
                         back = true;
                         break;
                     default:
-                        System.out.println("Invalid choice. Try again.");
+                        System.out.println("\nInvalid choice. Please try again.");
                 }
-            } catch (ItemNotFoundException e) {
-                // Handle ItemNotFoundException without waiting for input
-                System.out.println("Error: " + e.getMessage());
             } catch (Exception e) {
-                // Handle other exceptions (like invalid input)
-                System.out.println("Error: Please enter a valid number.");
-                scanner.nextLine(); // Clear buffer only for input mismatch
+                System.out.println("\nError: " + e.getMessage());
+                System.out.println("Returning to menu...");
+                scanner.nextLine();
             }
         }
     }
     
-    // Add a client
     private static void addClient() {
-        System.out.println("\n--- Add New Client ---");
+        System.out.println("\n--- ADD NEW CLIENT ---");
         String id = getValidInput("Enter Client ID: ");
         String name = getValidInput("Enter Name: ");
         String email = getValidInput("Enter Email: ");
@@ -328,18 +317,16 @@ public class LibraryManagementSystem {
         clientManager.addClient(client);
     }
     
-    // View client details by ID
     private static void viewClientDetails() throws ItemNotFoundException {
-        System.out.println("\n--- View Client Details ---");
+        System.out.println("\n--- VIEW CLIENT DETAILS ---");
         String id = getValidInput("Enter Client ID: ");
         
         Client client = clientManager.getClientById(id);
         System.out.println("\n" + client.getClientDetails());
     }
     
-    // Update a client
     private static void updateClient() throws ItemNotFoundException {
-        System.out.println("\n--- Update Client ---");
+        System.out.println("\n--- UPDATE CLIENT ---");
         String id = getValidInput("Enter Client ID to update: ");
         
         String newName = getValidInput("Enter New Name: ");
@@ -348,11 +335,104 @@ public class LibraryManagementSystem {
         clientManager.updateClient(id, newName, newEmail);
     }
     
-    // Delete a client
     private static void deleteClient() throws ItemNotFoundException {
-        System.out.println("\n--- Delete Client ---");
+        System.out.println("\n--- DELETE CLIENT ---");
         String id = getValidInput("Enter Client ID to delete: ");
         
         clientManager.deleteClient(id);
+    }
+    
+    private static void borrowReturnMenu() {
+        boolean back = false;
+        
+        while (!back) {
+            System.out.println("\n--- BORROW/RETURN MENU ---");
+            System.out.println("1. Borrow Item");
+            System.out.println("2. Return Item");
+            System.out.println("3. View Available Items");
+            System.out.println("4. Back to Main Menu");
+            System.out.print("Enter your choice: ");
+            
+            try {
+                int choice = scanner.nextInt();
+                scanner.nextLine();
+                
+                switch (choice) {
+                    case 1:
+                        borrowItem();
+                        break;
+                    case 2:
+                        returnItem();
+                        break;
+                    case 3:
+                        library.displayAvailableItems();
+                        break;
+                    case 4:
+                        back = true;
+                        break;
+                    default:
+                        System.out.println("\nInvalid choice. Please try again.");
+                }
+            } catch (Exception e) {
+                System.out.println("\nError: " + e.getMessage());
+                System.out.println("Returning to menu...");
+                scanner.nextLine();
+            }
+        }
+    }
+    
+    private static void borrowItem() throws ItemNotFoundException {
+        System.out.println("\n--- BORROW ITEM ---");
+        String clientId = getValidInput("Enter Client ID: ");
+        String itemId = getValidInput("Enter Item ID: ");
+        
+        clientManager.borrowItem(clientId, itemId, library);
+    }
+    
+    private static void returnItem() throws ItemNotFoundException {
+        System.out.println("\n--- RETURN ITEM ---");
+        String clientId = getValidInput("Enter Client ID: ");
+        String itemId = getValidInput("Enter Item ID: ");
+        
+        clientManager.returnItem(clientId, itemId, library);
+    }
+    
+    private static void searchMenu() {
+        boolean back = false;
+        
+        while (!back) {
+            System.out.println("\n--- SEARCH MENU ---");
+            System.out.println("1. Search Items by Title");
+            System.out.println("2. Search Clients by Name");
+            System.out.println("3. Back to Main Menu");
+            System.out.print("Enter your choice: ");
+            
+            try {
+                int choice = scanner.nextInt();
+                scanner.nextLine();
+                
+                switch (choice) {
+                    case 1:
+                        System.out.print("Enter search keyword: ");
+                        String itemKeyword = scanner.nextLine();
+                        library.searchByTitle(itemKeyword);
+                        break;
+                    case 2:
+                        System.out.print("Enter search keyword: ");
+                        String clientKeyword = scanner.nextLine();
+                        clientManager.searchByName(clientKeyword);
+                        break;
+                    case 3:
+                        back = true;
+                        break;
+                    default:
+                        System.out.println("\nInvalid choice. Please try again.");
+                }
+            } catch (Exception e) {
+                System.out.println("\nError: " + e.getMessage());
+                System.out.println("Returning to menu");
+                scanner.nextLine();
+            }
+        }
     }
 }
